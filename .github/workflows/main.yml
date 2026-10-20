@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -26,16 +26,29 @@ jobs:
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.1'
+
+      - name: Check project files
+        run: |
+          test -f build.gradle
+          test -f settings.gradle
+          test -f gradle.properties
+          test -f src/main/resources/fabric.mod.json
+          test -f tools/yarnify.py
+
+      - name: Convert Minecraft source mappings
+        run: python3 tools/yarnify.py
 
       - name: Build Fabric mod
-        run: |
-          chmod +x ./gradlew
-          ./gradlew build --no-daemon
+        run: gradle build --no-daemon --stacktrace
 
-      - name: Upload mod JARs
+      - name: Upload mod JAR
         uses: actions/upload-artifact@v4
         with:
           name: edit-hub-build
           path: |
-            **/build/libs/*.jar
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
           if-no-files-found: error
