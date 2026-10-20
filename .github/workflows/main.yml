@@ -37,8 +37,6 @@ jobs:
           test -f src/main/resources/fabric.mod.json
           test -f tools/yarnify.py
 
-      - name: Convert Minecraft source mappings
-        run: python3 tools/yarnify.py
 
       - name: Build Fabric mod
         run: gradle build --no-daemon --stacktrace
